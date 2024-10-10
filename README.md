@@ -5,7 +5,7 @@ This is a repo for listing users, posts, and tasks
 1. **Set up Android Studio and React Native CLI** to run the project.
 2. **Configured Redux** store, slices, and reducers using Redux Toolkit for state management.
 3. **Implemented React Navigation** for screen navigation.
-4. **Fetched and normalized data** from the API, optimizing array responses as discussed during the technical interview.
+4. **Fetched and normalized data** from the API, optimizing array responses as discussed - Data **normalisation**.
 5. **Set up a simple theme** to maintain UI consistency.
 6. **Declared interfaces and types** for almost every part of the project, ensuring type safety.
 7. **Extracted reusable utility functions** to minimize code repetition.
@@ -17,7 +17,7 @@ This is a repo for listing users, posts, and tasks
 13. **Fetched, filtered, and manipulated tasks** according to requirements while maintaining state integrity.
 14. **Implemented editable User Details** with proper error handling.
 15. **Set up an editable Users List** with action buttons (Cancel/Submit), ensuring buttons are only clickable when changes are made.
-16. **Fetched and displayed user posts**, allowing users to delete posts and see the changes persist after navigating back.
+16. **Fetched and displayed user posts**, allowing post deletions and see the changes persist after navigating back to users and the select the same user you have just manipulated his posts.
 17. **Added error handling**, with meaningful messages and status codes based on API responses.
 
 ## What Is Left and Can Be Optimized

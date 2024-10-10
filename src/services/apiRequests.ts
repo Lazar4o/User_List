@@ -2,7 +2,7 @@ import axios from 'axios';
 import { User } from '../utils/interfaces/users';
 import { ENDPOINTS } from '../utils/constants';
 
-// @TODO: Move in ENV - BASE_JSON_PLACEHOLDER_URL
+// @TODO: Move in ENV file - BASE_JSON_PLACEHOLDER_URL
 const apiClient = axios.create({
   baseURL: 'https://jsonplaceholder.typicode.com',
   timeout: 10000,

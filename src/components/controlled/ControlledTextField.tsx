@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { TextField, TextFieldProps } from 'react-native-ui-lib';
+import { Text, TextField, TextFieldProps, View } from 'react-native-ui-lib';
 import {
   Controller,
   FieldError,
@@ -12,8 +12,9 @@ interface ControlledTextFieldProps
   name: string;
   control: any;
   defaultValue?: string;
-  placeholder: string;
+  label: string;
   rules?: object;
+  multiline?: boolean;
   errorMessage?:
     | string
     | FieldError
@@ -25,9 +26,10 @@ const ControlledTextField: React.FC<ControlledTextFieldProps> = ({
   name,
   control,
   defaultValue = '',
-  placeholder,
+  label,
   rules = {},
   errorMessage,
+  multiline = true,
   ...rest
 }) => {
   return (
@@ -37,17 +39,36 @@ const ControlledTextField: React.FC<ControlledTextFieldProps> = ({
       defaultValue={defaultValue}
       rules={rules}
       render={({ field: { onChange, onBlur, value } }) => (
-        <TextField
-          placeholder={placeholder}
-          value={value}
-          onBlur={onBlur}
-          onChangeText={onChange}
-          errorMessage={!!errorMessage}
-          {...rest}
-        />
+        <View marginB-10>
+          <TextField
+            multiline={multiline}
+            numberOfLines={1}
+            label={label}
+            value={value}
+            onBlur={onBlur}
+            onChangeText={onChange}
+            errorMessage={!!errorMessage}
+            // @TODO: Extract style into a reusable utility
+            style={{
+              padding: 10,
+              backgroundColor: 'white',
+              borderColor: 'black',
+              borderWidth: 1,
+              borderRadius: 10,
+            }}
+            {...rest}
+          />
+          {errorMessage && (
+            <Text color={'red'}>
+              {errorMessage && typeof errorMessage === 'string'
+                ? errorMessage
+                : (errorMessage as FieldError)?.message}
+            </Text>
+          )}
+        </View>
       )}
     />
   );
 };
 
-export default ControlledTextField;
+export default memo(ControlledTextField);

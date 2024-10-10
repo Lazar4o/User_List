@@ -16,8 +16,9 @@ export const fetchUsers = async (): Promise<User[]> => {
   return response.data;
 };
 
-export const fetchPosts = async () => {
-  const response = await apiClient.get(ENDPOINTS.POSTS.INDEX);
+// @TODO: fix the /path to be a constant
+export const fetchPosts = async (userId: number) => {
+  const response = await apiClient.get(`/posts?userId=${userId}`);
   return response.data;
 };
 

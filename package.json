@@ -1,5 +1,5 @@
 {
-  "name": "Task_User_List",
+  "name": "Task-User-List",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -13,6 +13,7 @@
     "@hookform/resolvers": "^3.9.0",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
+    "@react-navigation/stack": "^6.4.1",
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.7",
     "lodash": "^4.17.21",

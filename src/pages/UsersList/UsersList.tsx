@@ -4,16 +4,21 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native-ui-lib';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, StatusBar } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState, selectAllUsers } from '../../store/store';
-import { useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { fetchUsers, updateUser } from '../../store/slices/userSlice';
 import { useForm } from 'react-hook-form';
 import ControlledTextField from '../../components/controlled/ControlledTextField';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../../utils/types/navigation';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const UsersList = () => {
+// @TODO: ADD USECALLBACKS - WHERE NECESARY
+const UsersList: FC = () => {
   const [expandedUser, setExpandedUser] = useState<number | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -22,55 +27,73 @@ const UsersList = () => {
   const error = useSelector((state: RootState) => state.users.error);
   const loading = useSelector((state: RootState) => state.users.loading);
 
-  useEffect(() => {
-    // @TODO: This might not be needed - problem is around useForm - control and name props
-    if (Object.keys(usersById).length === 0) {
-      dispatch(fetchUsers());
-    }
-  }, [dispatch]);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   const {
     control,
     handleSubmit,
     formState: { errors, isDirty, isValid },
+    setValue,
     reset,
   } = useForm({
     // @TODO: Uncomment and wire yup validation
     // resolver: yupResolver(userValidationSchema),
-    // defaultValues: {
-    //   users: users,
-    // },
+    // defaultValues: usersById,
   });
 
-  // @TODO: Type the data
-  const onSubmit = (data: any, userId: number) => {
+  // @TODO: Type the data - extract in interface / type
+  const onSubmit = (
+    // data: { users: { [key: number]: User } },
+    data: any,
+    userId: number,
+  ) => {
     const specificUserData = data.users[userId];
     console.log('Specific user data:', specificUserData);
 
+    // @TODO: Debounce this
     dispatch(updateUser({ id: userId, data: specificUserData }));
-
-    // @TODO: Reset does not work correctly - so just left a TODO for now
-    // reset({
-    //   [`users.${userId}.username`]: specificUserData.username,
-    //   [`users.${userId}.email`]: specificUserData.email,
-    //   [`users.${userId}.address.street`]: specificUserData.address.street,
-    //   [`users.${userId}.address.suite`]: specificUserData.address.suite,
-    //   [`users.${userId}.address.city`]: specificUserData.address.city,
-    // });
   };
 
+  // @TODO: Debounce this
   const handleCancel = (userId: number) => {
     const user = usersById[userId];
 
     // @TODO: Reset does not work correctly - so just left a TODO for now
     if (user) {
-      reset();
+      setValue(`users.${userId}.username`, user.username);
+      setValue(`users.${userId}.email`, user.email);
+      setValue(`users.${userId}.address.street`, user.address.street);
+      setValue(`users.${userId}.address.suite`, user.address.suite);
+      setValue(`users.${userId}.address.city`, user.address.city);
+
+      // @TODO: Reset has some cache - leave it like that for now
+      // reset({
+      //   [`users.${userId}.username`]: user.username,
+      //   [`users.${userId}.email`]: user.email,
+      //   [`users.${userId}.address.street`]: user.address.street,
+      //   [`users.${userId}.address.suite`]: user.address.suite,
+      //   [`users.${userId}.address.city`]: user.address.city,
+      // });
     }
+    toggleExpand(userId);
   };
 
+  const handleSeePosts = (userId: number) => {
+    console.log('See posts for user:', userId);
+
+    navigation.navigate('UserPosts', {
+      userId,
+    });
+  };
+
+  // @TODO: Debounce this
   const toggleExpand = (userId: number) => {
     setExpandedUser(prevUserId => (prevUserId === userId ? null : userId));
   };
+
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, []);
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -81,90 +104,130 @@ const UsersList = () => {
   }
 
   return (
-    <FlatList
-      data={usersToMap}
-      keyExtractor={field => field?.id?.toString()}
+    <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: 'pink',
-        maxHeight: 450,
+        marginTop: StatusBar.currentHeight,
         marginHorizontal: 10,
-      }}
-      renderItem={({ item }) => (
-        <View backgroundColor="red" key={item.id} style={{ marginVertical: 5 }}>
-          <Text>Index: {item.id}</Text>
-          <ExpandableSection
-            sectionHeader={
-              <Text color={'black'} text60>
-                {item.name}
-              </Text>
-            }
-            expanded={expandedUser === item.id}
-            onPress={() => toggleExpand(item.id)}>
-            <View style={{ padding: 10 }}>
-              <ControlledTextField
-                name={`users.${item.id}.username`}
-                control={control}
-                defaultValue={item.username}
-                placeholder="Username"
-                // rules={{ required: 'Username is required' }} // Validation rule
-                //   errorMessage={errors[`username`]?.message}
-              />
-              <ControlledTextField
-                name={`users.${item.id}.email`}
-                control={control}
-                defaultValue={item.email}
-                placeholder="Email"
-                // rules={{
-                //   required: 'Email is required',
-                //   pattern: {
-                //     value: /\S+@\S+\.\S+/,
-                //     message: 'Email is invalid',
-                //   },
-                // }}
-                //   errorMessage={errors[`email`]?.message}
-              />
-              <ControlledTextField
-                name={`users.${item.id}.address.street`}
-                control={control}
-                defaultValue={item.address.street}
-                placeholder="Street"
-                // rules={{ required: 'Street is required' }}
-                //   errorMessage={errors[`address.street`]?.message}
-              />
-              <ControlledTextField
-                name={`users.${item.id}.address.suite`}
-                control={control}
-                defaultValue={item.address.suite}
-                placeholder="Suite"
-                //   errorMessage={errors[`address.suite`]?.message}
-              />
-              <ControlledTextField
-                name={`users.${item.id}.address.city`}
-                control={control}
-                defaultValue={item.address.city}
-                placeholder="City"
-                // rules={{ required: 'City is required' }}
-                //   errorMessage={errors[`address.city`]?.message}
-              />
+      }}>
+      {/* @TODO: Add some Text like Users Listing */}
+      <View>
+        <Text text60BO>Users Listing</Text>
+      </View>
 
-              <TouchableOpacity
-                style={{ backgroundColor: 'orange', padding: 10 }}
-                onPress={() => handleCancel(item.id)}
-                disabled={!isDirty}>
-                <Text>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ backgroundColor: 'yellow', padding: 10 }}
-                onPress={handleSubmit(data => onSubmit(data, item.id))}
-                disabled={!isDirty || !isValid}>
-                <Text>Submit</Text>
-              </TouchableOpacity>
+      <FlatList
+        data={usersToMap}
+        keyExtractor={field => field?.id?.toString()}
+        style={{
+          flex: 1,
+        }}
+        enabled={true}
+        extraData={expandedUser}
+        renderItem={({ item }) => {
+          return (
+            <View
+              key={item.id}
+              style={{
+                // @TODO: Exxtract into style
+                marginVertical: 5,
+                padding: 10,
+                borderStyle: 'solid',
+                borderColor: 'black',
+                borderWidth: 1,
+                borderRadius: 10,
+              }}>
+              <Text>Index: {item.id}</Text>
+              <ExpandableSection
+                sectionHeader={
+                  // @TODO: Extract into reusable component - UserList has the same
+                  <View row spread centerV>
+                    <Text color={'black'} text60>
+                      {item.name}
+                    </Text>
+                    <View>
+                      <Text text40>{expandedUser === item.id ? '-' : '+'}</Text>
+                    </View>
+                  </View>
+                }
+                expanded={expandedUser === item.id}
+                onPress={() => toggleExpand(item.id)}>
+                <View style={{ padding: 10 }}>
+                  <ControlledTextField
+                    name={`users.${item.id}.username`}
+                    control={control}
+                    defaultValue={item.username}
+                    label="Username"
+                    rules={{ required: 'Username is required' }} // Validation rule
+                    errorMessage={errors[`users.${item.id}.username`]?.message}
+                  />
+                  <ControlledTextField
+                    name={`users.${item.id}.email`}
+                    control={control}
+                    defaultValue={item.email}
+                    label="Email"
+                  />
+                  <ControlledTextField
+                    name={`users.${item.id}.address.street`}
+                    control={control}
+                    defaultValue={item.address.street}
+                    label="Street"
+                  />
+                  <ControlledTextField
+                    name={`users.${item.id}.address.suite`}
+                    control={control}
+                    defaultValue={item.address.suite}
+                    label="Suite"
+                  />
+                  <ControlledTextField
+                    name={`users.${item.id}.address.city`}
+                    control={control}
+                    defaultValue={item.address.city}
+                    label="City"
+                  />
+                  {/* @TODO: EXTRACT INTO REUSABLE COMPONENT */}
+                  <View row spread>
+                    <View>
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: 'lightgreen',
+                          padding: 10,
+                          borderRadius: 10,
+                        }}
+                        onPress={() => handleSeePosts(item.id)}>
+                        <Text>See Posts</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View row style={{ gap: 12 }}>
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: !isDirty ? 'grey' : 'orange',
+                          padding: 10,
+                          borderRadius: 10,
+                        }}
+                        onPress={() => handleCancel(item.id)}
+                        disabled={!isDirty}>
+                        <Text>Cancel</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor:
+                            !isDirty || !isValid ? 'grey' : 'yellow',
+                          padding: 10,
+                          borderRadius: 10,
+                        }}
+                        onPress={handleSubmit(data => onSubmit(data, item.id))}
+                        disabled={!isDirty}>
+                        <Text>Submit</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </ExpandableSection>
             </View>
-          </ExpandableSection>
-        </View>
-      )}
-    />
+          );
+        }}
+      />
+    </SafeAreaView>
   );
 };
 

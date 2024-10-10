@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import userReducer from './slices/userSlice';
 import postReducer from './slices/postSlice';
+import taskReducer from './slices/tasksSlice';
 import { createSelector } from 'reselect';
 
 export const store = configureStore({
   reducer: {
     users: userReducer,
     posts: postReducer,
+    tasks: taskReducer,
   },
 });
 
@@ -41,3 +43,15 @@ export const selectHasPostsForUserId = (state: RootState, userId?: number) => {
 };
 
 // Tasks
+export const selectFilteredTasks = createSelector(
+  (state: RootState) => state.tasks.filteredIds,
+  (state: RootState) => state.tasks.byId,
+  (filteredIds, byId) => filteredIds.map(id => byId[id]),
+);
+
+export const selectTaskPagination = (state: RootState) =>
+  state.tasks.pagination;
+
+export const selectTaskFilters = (state: RootState) => state.tasks.filters;
+
+// --------------------------------------------

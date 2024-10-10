@@ -143,7 +143,7 @@ const TaskList: FC = () => {
             }}
             renderItem={({ item }) => (
               <View>
-                <Text>{item.title}</Text>
+                <Text>TODO: {item.title}</Text>
                 <Text>Owner ID: {item.userId}</Text>
                 <TouchableOpacity
                   style={{

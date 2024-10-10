@@ -4,6 +4,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 export type RootStackParamList = {
   UserPosts: { userId: number } | undefined;
   Home: {};
+  Tasks: {};
 };
 
 export type RootNavigationProp = NavigationProp<

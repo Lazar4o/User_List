@@ -12,3 +12,4 @@ export const ENDPOINTS = {
 
 export const FETCH_USERS = 'users/fetchUsers';
 export const FETCH_POSTS = 'posts/fetchPosts';
+export const FETCH_TASKS = 'tasks/fetchTasks';

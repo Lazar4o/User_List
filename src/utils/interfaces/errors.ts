@@ -3,3 +3,8 @@ export interface ApiError {
     status: number | string;
   };
 }
+
+export interface RegectedApiError {
+  status: number;
+  message: string;
+}

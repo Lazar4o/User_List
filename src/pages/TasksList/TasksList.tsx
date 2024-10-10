@@ -1,6 +1,5 @@
 import React, { FC, useEffect } from 'react';
 import { TextInput, FlatList } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectFilteredTasks,
@@ -60,7 +59,7 @@ const TaskList: FC = () => {
         }}
         placeholder="Filter by title"
         value={filters.title}
-        onChangeText={text => handleFilterChange('title', text)}
+        onChangeText={(text: string) => handleFilterChange('title', text)}
       />
 
       {/* Filter by User ID */}
@@ -76,24 +75,11 @@ const TaskList: FC = () => {
         placeholder="Filter by User ID"
         keyboardType="numeric"
         value={filters.userId ? filters.userId.toString() : ''}
-        onChangeText={text =>
+        onChangeText={(text: string) =>
           handleFilterChange('userId', text ? parseInt(text, 10) : null)
         }
       />
 
-      {/* Filter by Status (Completed, Not Completed, All) */}
-      <Picker
-        selectedValue={filters.status}
-        style={{
-          height: 50,
-          width: 200,
-          marginBottom: 10,
-        }}
-        onValueChange={itemValue => handleFilterChange('status', itemValue)}>
-        <Picker.Item label="All" value="all" />
-        <Picker.Item label="Completed" value="completed" />
-        <Picker.Item label="Not Completed" value="notCompleted" />
-      </Picker>
 
       {/* Reset Filters */}
       <TouchableOpacity

@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { TextInput, FlatList } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -15,7 +15,13 @@ import {
   updatePagination,
   updateTaskStatus,
 } from '../../store/slices/tasksSlice';
-import { Text, TouchableOpacity, View } from 'react-native-ui-lib';
+import {
+  RadioButton,
+  RadioGroup,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native-ui-lib';
 
 const TaskList: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -24,12 +30,23 @@ const TaskList: FC = () => {
   const pagination = useSelector(selectTaskPagination);
   const filters = useSelector(selectTaskFilters);
 
+  const [selectedStatus, setSelectedStatus] = useState<string>(filters.status);
+
   useEffect(() => {
     dispatch(fetchTasks());
   }, [dispatch]);
 
+  useEffect(() => {
+    setSelectedStatus(filters.status);
+  }, [filters.status]);
+
   const handleFilterChange = (field: string, value: string | number | null) => {
     dispatch(updateFilters({ [field]: value }));
+  };
+
+  const handleStatusChange = (value: string) => {
+    setSelectedStatus(value);
+    handleFilterChange('status', value);
   };
 
   const handleResetFilters = () => {
@@ -47,6 +64,20 @@ const TaskList: FC = () => {
 
   return (
     <View padding-10>
+      {/* Radio Group for Status Filter */}
+      <RadioGroup
+        initialValue={selectedStatus}
+        onValueChange={handleStatusChange}
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          marginBottom: 10,
+        }}>
+        <RadioButton value="all" label="All" />
+        <RadioButton value="completed" label="Completed" />
+        <RadioButton value="notCompleted" label="Incomplete" />
+      </RadioGroup>
+
       {/* Filter by Title */}
       <TextInput
         style={{
@@ -80,7 +111,6 @@ const TaskList: FC = () => {
         }
       />
 
-
       {/* Reset Filters */}
       <TouchableOpacity
         bg-blue40
@@ -103,7 +133,7 @@ const TaskList: FC = () => {
         extraData={[tasks, filters, pagination]}
         keyExtractor={item => item.id.toString()}
         style={{
-          maxHeight: 500,
+          maxHeight: 350,
         }}
         renderItem={({ item }) => (
           <View>
